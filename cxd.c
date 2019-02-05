@@ -123,7 +123,7 @@ static sqlite3_stmt *cdbq[sizeof(dbq)];
 
 /* options */
 static char *optstr = "dD:s:";
-static char *usage = "cxd [-d] [-s socket]";
+static char *usage = "cxd [-d] [-D dbpath] [-s socket]";
 static bool daemonopt;
 static bool Dflag;
 static char *datapath;
