@@ -133,7 +133,6 @@ static bool sflag;
 static char *socketpath;
 
 static int show_usage(void);
-void cxd_exit(int);
 void cxd_atexit(void);
 static void read_sock(void);
 static int get_message(int, char *);
@@ -244,13 +243,6 @@ main(int argc, char **argv)
 	read_sock();
 
 	return 0;
-}
-
-void
-cxd_exit(int ret)
-{
-	/* exit will call cxd_atexit */
-	exit(ret);
 }
 
 void
