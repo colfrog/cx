@@ -333,7 +333,12 @@ setup_socket(char *path)
 
 	memset(sun.sun_path, 0, sizeof(sun.sun_path));
 	sun.sun_family = AF_UNIX;
-	strncpy(sun.sun_path, path, sizeof(sun.sun_path));
+	if (strlen(path) > sizeof(sun.sun_path)) {
+		err(1, "Path too long");
+	} else {
+		strncpy(sun.sun_path, path, sizeof(sun.sun_path));
+	}
+
 	size = sizeof(struct sockaddr_un);
 
 	if (bind(so, (struct sockaddr *)&sun, size) == -1)

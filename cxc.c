@@ -147,7 +147,11 @@ setup_connection(char *path)
 	memset(&sun, 0, sizeof(sun));
 
 	int so = socket(AF_UNIX, SOCK_STREAM, 0);
-	strncpy(sun.sun_path, path, sizeof(sun.sun_path));
+	if (strlen(path) > sizeof(sun.sun_path)) {
+		err(1, "Path too long");
+	} else {
+		strncpy(sun.sun_path, path, sizeof(sun.sun_path));
+	}
 	sun.sun_family = AF_UNIX;
 
 	int ret = connect(so, (struct sockaddr *)&sun, sizeof(sun));
