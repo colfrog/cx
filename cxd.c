@@ -147,6 +147,7 @@ static bool is_string_numerical(char *);
 static int remove_trailing_slashes(char *);
 
 static void handle_match(int, char *);
+static void handle_matchn(int, char *);
 static void handle_push(int, char *);
 static void handle_dump(int, char *);
 static void handle_togglelock(int, char *);
@@ -157,6 +158,8 @@ static void handle_remove(int, char *);
 
 static void recalculate_prios(void);
 static int calc_prio(sqlite_int64, sqlite_int64, int);
+static void find_file_regex(const regex_t *re, char *buf, size_t bufsize);
+static void find_file_iter(const char *msg, int n, char *buf, size_t bufsize);
 static int find_entry(char *);
 static void remove_by_path(char *);
 static void remove_by_id(int);
@@ -173,6 +176,8 @@ struct command {
 static struct command proto_commands[] = {
 	/* match a regex */
 	{"MATCH", handle_match},
+	/* match at most n regexes */
+	{"MATCHN", handle_matchn},
 	/* push directory */
 	{"PUSH", handle_push},
 	/* dump the array to the connection */
@@ -397,7 +402,8 @@ hook_command(int cl, char *message)
 		cmd = proto_commands[i];
 		cmdlen = strlen(cmd.name);
 
-		if (strncmp(message, cmd.name, cmdlen) == 0) {
+		if (strncmp(message, cmd.name, cmdlen) == 0 &&
+		    (message[cmdlen] == '\0' || message[cmdlen] == ' ')) {
 			/* strip the command */
 			message += cmdlen;
 			while (*message == ' ')
@@ -415,10 +421,9 @@ hook_command(int cl, char *message)
 static void
 handle_match(int cl, char *message)
 {
-	int i, bm, ret, nmatch = 0;
-	size_t len, msglen = strlen(message);
-	char *path, *name;
-	bool imatch = false;
+	int ret;
+	char buf[4096];
+	memset(buf, 0, sizeof(buf));
 
 	/* make sure equivalent paths can compare */
 	remove_trailing_slashes(message);
@@ -428,10 +433,45 @@ handle_match(int cl, char *message)
 	/* compile the regex */
 	regex_t re;
 	ret = regcomp(&re, message, REG_ICASE | REG_NOSUB);
-	if (ret)
-		imatch = true;
+	if (ret)		
+		find_file_regex(&re, buf, sizeof(buf));
+	else
+		find_file_iter(message, strlen(message)/2, buf, sizeof(buf));
+	
+	write(cl, buf, strlen(buf) + 1);
+	
+	regfree(&re);
+	return;
+}
 
-	while(sqlite3_step(cdbq[DB_GET_LOOKUP_ROWS]) == SQLITE_ROW) {
+static void
+handle_matchn(int cl, char *message)
+{
+	long int i, n;
+	int ret;
+	char *path, *name;
+	regex_t re;
+	for (i = 0; isdigit(message[i]); i++)
+		;
+
+	if (i == 0) {
+		write(cl, "\0", 1);
+		return;
+	}
+
+	remove_trailing_slashes(message);
+	recalculate_prios();
+
+	char *digits_end = message + i++;
+	while (message[i] == ' ' && message[i] != '\0')
+		;
+	char *msg_start = message + i;
+	ret = regcomp(&re, msg_start, REG_ICASE | REG_NOSUB);
+
+
+	i = 0;
+	n = strtol(message, &digits_end, 10);
+	while (sqlite3_step(cdbq[DB_GET_LOOKUP_ROWS]) == SQLITE_ROW && (n == -1 || i < n)) {
 		path = (char *)sqlite3_column_text(cdbq[DB_GET_LOOKUP_ROWS], 1);
 		name = (char *)sqlite3_column_text(cdbq[DB_GET_LOOKUP_ROWS], 2);
 
@@ -441,36 +481,16 @@ handle_match(int cl, char *message)
 			continue;
 		}
 
-		if (imatch) {
-			/* match by iteration since the regex failed to compile */
-			bm = 0;
-			len = strlen(name);
-			for (i = 0; i < len; i++) {
-				if (name[i] == message[i])
-					bm++;
-				else
-					bm = 0;
-
-				if (bm == msglen) {
-					write(cl, path, strlen(path));
-					write(cl, "\n\0", 2);
-					return;
-				}
-			}
-		} else {
-			if (regexec(&re, name, nmatch, NULL, 0) == 0) {
-				write(cl, path, strlen(path));
-				write(cl, "\n\0", 2);
-				goto leave_handle_match;
-			}
+		if (regexec(&re, name, 0, NULL, 0) == 0) {
+			write(cl, path, strlen(path));
+			write(cl, "\n", 1);
+			i++;
 		}
 	}
 
 	write(cl, "\0", 1);
-leave_handle_match:
 	sqlite3_reset(cdbq[DB_GET_LOOKUP_ROWS]);
 	regfree(&re);
-	return;
 }
 
 static void
@@ -702,6 +722,66 @@ calc_prio(sqlite_int64 now, sqlite_int64 laccs, int naccs)
 		x = (double)naccs / (2 * a);
 
 	return x;
+}
+
+static void
+find_file_regex(const regex_t *re, char *buf, size_t bufsize)
+{
+	char *path, *name;
+
+	while(sqlite3_step(cdbq[DB_GET_LOOKUP_ROWS]) == SQLITE_ROW) {
+		path = (char *)sqlite3_column_text(cdbq[DB_GET_LOOKUP_ROWS], 1);
+		name = (char *)sqlite3_column_text(cdbq[DB_GET_LOOKUP_ROWS], 2);
+
+		if (access(path, X_OK) != 0) {
+			/* that path is gone, remove it and keep going */
+			remove_by_path(path);
+			continue;
+		}
+		
+		if (regexec(re, name, 0, NULL, 0) == 0) {
+			strncpy(buf, path, bufsize);
+			strcat(buf, "\n");
+			break;
+		}
+	}
+
+	sqlite3_reset(cdbq[DB_GET_LOOKUP_ROWS]);
+}
+
+static void
+find_file_iter (const char *msg, int n, char *buf, size_t bufsize)
+{
+	char *path, *name;
+	size_t i, len, bm;
+
+	while(sqlite3_step(cdbq[DB_GET_LOOKUP_ROWS]) == SQLITE_ROW) {
+		path = (char *)sqlite3_column_text(cdbq[DB_GET_LOOKUP_ROWS], 1);
+		name = (char *)sqlite3_column_text(cdbq[DB_GET_LOOKUP_ROWS], 2);
+		bm = 0;
+		len = strlen(name);
+
+		if (access(path, X_OK) != 0) {
+			/* that path is gone, remove it and keep going */
+			remove_by_path(path);
+			continue;
+		}
+
+    		for (i = 0; i < len; i++) {
+			if (name[i] == msg[i])
+				bm++;
+			else
+				bm = 0;
+
+			if (bm > n) {
+				strncpy(buf, path, bufsize);
+				strcat(buf, "\n");
+				break;
+			}
+		}
+	}
+
+	sqlite3_reset(cdbq[DB_GET_LOOKUP_ROWS]);
 }
 
 static int

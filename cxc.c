@@ -11,8 +11,8 @@
 
 #include "cx.h"
 
-static char optstr[] = "-dlurtS:i:s:p:";
-static char usage[] = "cxc [-dlurt] [-S <prio>] [-i <id>] [-p <path>] [-s <socket path>] [--] <string to match>";
+static char optstr[] = "-dlurtS:i:n:s:p:";
+static char usage[] = "cxc [-dlurt] [-S <prio>] [-i <id>] [-n match_count] [-p <path>] [-s <socket path>] [--] <string to match>";
 static bool dflag;
 static bool lflag;
 static bool uflag;
@@ -27,7 +27,7 @@ static char *socketpath;
 
 static int show_usage(void);
 static int setup_connection(char *path);
-static char *get_match(int so, char *to_match, char *buf, size_t bufsize);
+static char *get_match(int so, int n, char *to_match, char *buf, size_t bufsize);
 static void push_path(int so, char *str);
 static void write_dump(int so);
 static void set_locked(int);
@@ -38,6 +38,7 @@ static void set_prio(int);
 int
 main(int argc, char *argv[])
 {
+	int n = 1;
 	char buf[PATH_MAX + 1];
 	memset(buf, 0, sizeof(buf));
 	char match[PATH_MAX + 1];
@@ -67,6 +68,12 @@ main(int argc, char *argv[])
 			prio = atoi(optarg);
 			if (errno)
 				err(errno, "failed to parse requested priority");
+			break;
+		case 'n':
+			n = atoi(optarg);
+			should_match = true;
+			if (errno)
+				err(errno, "failed to parse requested match count");
 			break;
 		case 'i':
 			id = atoi(optarg);
@@ -119,7 +126,7 @@ opt_loop_end:
 		push_path(so, pushpath);
 
 	if (should_match) {
-		get_match(so, argv[argc - 1], match, PATH_MAX + 1);
+		get_match(so, n, argv[argc - 1], match, PATH_MAX + 1);
 		if (match[0] == '\0') {
 			write(2, "No matching entry\n", 18);
 			write(1, ".\n", 2);
@@ -174,7 +181,7 @@ push_path(int so, char *str)
 }
 
 static char *
-get_match(int so, char *to_match, char *buf, size_t bufsize)
+get_match(int so, int n, char *to_match, char *buf, size_t bufsize)
 {
 	if (to_match == NULL)
 		return NULL;
@@ -183,7 +190,7 @@ get_match(int so, char *to_match, char *buf, size_t bufsize)
 	memset(message, 0, sizeof(message));
 	memset(buf, 0, bufsize);
 
-	snprintf(message, sizeof(message), "MATCH %s", to_match);
+	snprintf(message, sizeof(message), "MATCHN %d %s", n, to_match);
 	write(so, message, strlen(message) + 1);
 
 	int ret, i = 0;
