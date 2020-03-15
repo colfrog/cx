@@ -448,7 +448,6 @@ static void
 handle_matchn(int cl, char *message)
 {
 	long int i, n;
-	int ret;
 	char *path, *name;
 	regex_t re;
 	for (i = 0; isdigit(message[i]); i++)
@@ -466,7 +465,7 @@ handle_matchn(int cl, char *message)
 	while (message[i] == ' ' && message[i] != '\0')
 		;
 	char *msg_start = message + i;
-	ret = regcomp(&re, msg_start, REG_ICASE | REG_NOSUB);
+	regcomp(&re, msg_start, REG_ICASE | REG_NOSUB);
 
 
 	i = 0;
