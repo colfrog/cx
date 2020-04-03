@@ -6,6 +6,6 @@ function chpwd() {
 function cx() {
 	local output="`cxc -- \"$1\"`"
 	if test -d $output; then
-		cd "`cxc -- $1`"
+		cd "${output}"
 	fi
 }
