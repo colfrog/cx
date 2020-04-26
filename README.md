@@ -20,7 +20,7 @@ This program requires the SQLite3 development headers and library.
 
 ### cxd
 
-cxd is a daemon that runs in the background and receives messages from a UNIX socket at `~/.cx/socket` by default. A simple text-based protocol is defined to send and receive messages.
+cxd is a daemon that runs in the background and receives messages from a UNIX socket at `~/.cx/socket` by default. It also maintains a database at `~/.cx/data` and has a lockfile at `~/.cx/lock` to prevent more than one daemon from running at once. cxd keeps its paths organized by frecency through database operations in reaction to messages that it gets from its socket. A simple text-based protocol is defined for these database operations.
 
 #### flags
 
@@ -30,7 +30,7 @@ cxd is a daemon that runs in the background and receives messages from a UNIX so
 
 ### cxc
 
-cxc is the client, it basically figures out what you want to do from your arguments, and sends the message to cxd. It's used as a backend for the cx command, but it can also be used to manually change a directory's priority, lock or unlock priorities in place, remove entries and push new entries. You can also use it to dump the entire database's contents.
+cxc is the client, it basically figures out what you want to do from your arguments, and sends the message to cxd. It's used as a back-end for the cx command, but it can also be used to manually change a directory's priority, lock or unlock priorities in place, remove entries and push new entries. You can also use it to dump the entire database's contents.
 
 #### flags
 
