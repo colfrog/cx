@@ -1,6 +1,8 @@
 cd() {
 	builtin cd $@
+	ret=$?
 	cxc -p "${PWD}"
+	return $ret
 }
 
 cx() {
