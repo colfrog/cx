@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <sys/types.h>
 
 #ifdef __GLIBC__
 #define _BSD_SOURCE

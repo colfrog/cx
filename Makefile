@@ -1,21 +1,25 @@
 PREFIX?=	/usr/local
 BINDIR?=	${PREFIX}/bin
 SHAREDDIR?=	${PREFIX}/share
-CFLAGS+=	-pedantic -std=c99 -Wall -Werror \
+CFLAGS+=	-O2 -pedantic -std=c99 -Wall -Werror \
 		-I/usr/local/include -L/usr/local/lib
-CXCLIBS=
-CXDLIBS=	-lm -lsqlite3
 
-make:
-	${CC} ${CFLAGS} -O2 cxs.c cxc.c ${CXCLIBS} -o cxc
-	${CC} ${CFLAGS} -O2 cxs.c cxd.c ${CXDLIBS} -o cxd
+all: cxd cxc
 
-debug:
-	${CC} ${CFLAGS} -O0 -g cxs.c cxc.c ${CXCLIBS} -o cxc
-	${CC} ${CFLAGS} -O0 -g cxs.c cxd.c ${CXDLIBS} -o cxd
+CXS= cx.h cxs.c
+cxd: LDFLAGS+= -lm -lsqlite3
+cxd: ${CXS} cxd.c
+cxc: ${CXS} cxc.c
 
+debug: CFLAGS+= -g -O0
+debug: cxd cxc
+
+BINDINGS=	lib/cx.sh lib/cx.zsh lib/cx.fish lib/cx.csh
 install:
 	mkdir -p ${BINDIR}
 	mkdir -p ${SHAREDDIR}/cx
 	install -m 755 cxc cxd ${BINDIR}
-	install -m 644 cx.sh cx.zsh cx.fish cx.csh ${SHAREDDIR}/cx
+	install -m 644 ${BINDINGS} ${SHAREDDIR}/cx
+
+clean:
+	rm -f src/*.o cxd cxc
