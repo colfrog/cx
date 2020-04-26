@@ -12,6 +12,8 @@ A directory history utility written in C
 
 ## Installing
 
+This program requires the SQLite3 development headers and library.
+
 `make && sudo make install` should build and install the program to /usr/local by default. Defining the `PREFIX` environment variable will let you define where it's installed. Scripts for various shells are installed in `${PREFIX}/share/cx`, which you should include for your respective shell to have convenient access to the cx command.
 
 ## How it works
