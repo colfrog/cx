@@ -739,7 +739,7 @@ find_file_regex(const regex_t *re, char *buf, size_t bufsize)
 		}
 		
 		if (regexec(re, name, 0, NULL, 0) == 0) {
-			strncpy(buf, path, bufsize);
+			strncpy(buf, path, bufsize - 1);
 			strcat(buf, "\n");
 			break;
 		}
@@ -773,7 +773,7 @@ find_file_iter (const char *msg, int n, char *buf, size_t bufsize)
 				bm = 0;
 
 			if (bm > n) {
-				strncpy(buf, path, bufsize);
+				strncpy(buf, path, bufsize - 1);
 				strcat(buf, "\n");
 				break;
 			}

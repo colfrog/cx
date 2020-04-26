@@ -21,7 +21,7 @@ cx_set_path(char *path, bool absolute, char *buf, size_t buflen)
 #endif
 
 	if (absolute)
-		strncpy(ibuf, path, strlen(path));
+		strncpy(ibuf, path, buflen - 1);
 	else
 		snprintf(ibuf, buflen, "%s/%s/%s", data_path, CX_DIR_NAME, path);
 
