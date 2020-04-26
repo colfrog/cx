@@ -8,8 +8,12 @@
 #include <sys/stat.h>
 #endif
 
-#ifndef CX_PATH
-#define CX_PATH "~/.cx"
+#ifndef CX_DIR_NAME
+#define CX_DIR_NAME "cx"
+#endif
+
+#ifndef CX_DATA_DIR
+#define CX_DATA_DIR "~/.local/share"
 #endif
 
 #define DEFAULT_SOCKET_NAME "socket"
