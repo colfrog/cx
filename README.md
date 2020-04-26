@@ -2,6 +2,14 @@
 
 A directory history utility written in C
 
+## History of cx
+
+I wrote this a few years ago, and I actually use it very often even though I’ve long forgotten about its code (not that it’s hard to remember), so I thought I’d share it here. It’s actually proven to be very robust for me.
+
+Its purpose is to be a very simple, shell-agnostic clone of [z](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/z). I made it on FreeBSD and later modified to work on my Linux installs. The program has POSIX shell bindings, and specific bindings for csh, zsh and fish, which work more closely with the specific shell’s distinctive features. cx attempts to do cli directory management the right way where the right way can be defined, so that it can also be as portable as possible.
+
+The original commit log is long gone in a crumbled mercurial repository on an erased VPS. So this is how I came to make this. I needed to keep a history of visited directories in a way that would work on any shell I used. I used tcsh on FreeBSD and zsh on Linux, I needed my tool to work on both. Where no POSIX shell standard will save us, what better way than to write an overly engineered but very barebones C program with a daemon-client architecture, to reassure yourself behind a few more layers of POSIX?
+
 ## Using cx
 
 * Start the daemon with `cxd -d` (You might want to add this to your .login or .profile)
