@@ -6,7 +6,7 @@ CFLAGS+=	-O2 -pedantic -std=c99 -Wall -Werror \
 
 all: cxd cxc
 
-CXS= cx.h cxs.c
+CXS= cxs.c
 cxd: LDFLAGS+= -lm -lsqlite3
 cxd: ${CXS} cxd.c
 cxc: ${CXS} cxc.c
