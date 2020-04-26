@@ -12,9 +12,13 @@ cx_set_path(char *path, bool absolute, char *buf, size_t buflen)
 	memset(ibuf, 0, buflen);
 	memset(buf, 0, buflen);
 
+#ifdef CX_DATA_DIR
+	const char *data_path = CX_DATA_DIR;
+#else
 	const char *data_path = getenv("XDG_DATA_HOME");
 	if (data_path == NULL)
-		data_path = CX_DATA_DIR;
+		data_path = "~/.local/share";
+#endif
 
 	if (absolute)
 		strncpy(ibuf, path, strlen(path));

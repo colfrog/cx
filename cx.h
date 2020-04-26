@@ -13,7 +13,7 @@
 #endif
 
 #ifndef CX_DATA_DIR
-#define CX_DATA_DIR "~/.local/share"
+// #define CX_DATA_DIR "~/.local/share"
 #endif
 
 #define DEFAULT_SOCKET_NAME "socket"
