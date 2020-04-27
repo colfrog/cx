@@ -1,13 +1,13 @@
 Name:           cx
 Version:        0.2
 Release:        0
-Summary:	A directory history management utility
+Summary:        A directory history management utility
 License:        BSD-2-Clause
 Group:          Development/Tools/Navigators
 Url:            https://nilio.ca/%{name}
 Source:         https://nilio.ca/%{name}/%{name}-%{version}.tar.xz
-Vendor:		Laurent Cimon <laurent@nilio.ca>
-Packager:	Laurent Cimon <laurent@nilio.ca>
+Vendor:         Laurent Cimon <laurent@nilio.ca>
+Packager:       Laurent Cimon <laurent@nilio.ca>
 BuildRequires:  sqlite3-devel
 
 %description
