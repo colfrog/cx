@@ -10,7 +10,7 @@ Package: cx
 Architecture: any
 Multi-Arch: foreign
 Depends: ${shlibs:Depends}, ${misc:Depends}, sqlite3
-Description: A directory history management utility
+Description: cx is a directory history management utility
  cx is a directory history management utility written in C.
  It hooks itself to your cd command in order to maintain
  an SQLite database of recent directories you've gone through,

@@ -1,7 +1,7 @@
 Name:           cx
 Version:        0.2
 Release:        0
-Summary:        A directory history management utility
+Summary:        cx is a directory history management utility
 License:        BSD-2-Clause
 Group:          Development/Tools/Navigators
 Url:            https://nilio.ca/%{name}
