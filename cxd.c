@@ -268,7 +268,7 @@ show_usage()
 static void
 acquire_lockfile(char *path, bool verbose)
 {
-	lockfd = open(path, O_RDWR | O_CREAT);
+	lockfd = open(path, O_RDWR | O_CREAT, 0644);
 	chmod(path, S_IWUSR | S_IRUSR);
 	if (lockfd < 0)
 		err(errno, "failed to open the lock file");
