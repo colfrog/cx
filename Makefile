@@ -1,6 +1,6 @@
 PREFIX?=	/usr/local
-BINDIR?=	${PREFIX}/bin
-SHAREDDIR?=	${PREFIX}/share
+BINDIR?=	${DESTDIR}${PREFIX}/bin
+SHAREDDIR?=	${DESTDIR}${PREFIX}/share
 CFLAGS+=	-O2 -pedantic -std=c99 -Wall -Werror
 
 all: build

@@ -24,7 +24,7 @@ using a combination of frecency and POSIX regex.
 %make_build
 
 %install
-make PREFIX=%{buildroot}%{_prefix} install
+make DESTDIR=%{buildroot} PREFIX=%{_prefix} install
 
 %files
 %license LICENSE
