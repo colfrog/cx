@@ -1,6 +1,6 @@
 # cx
 
-A directory history utility written in C
+A directory history management utility written in C
 
 ## History of cx
 
