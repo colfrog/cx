@@ -22,4 +22,4 @@ install:
 	install -m 644 ${BINDINGS} ${SHAREDDIR}/cx
 
 clean:
-	rm -f src/*.o cxd cxc
+	rm -f *.o cxd cxc
