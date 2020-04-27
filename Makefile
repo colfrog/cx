@@ -1,10 +1,10 @@
 PREFIX?=	/usr/local
 BINDIR?=	${PREFIX}/bin
 SHAREDDIR?=	${PREFIX}/share
-CFLAGS+=	-O2 -pedantic -std=c99 -Wall -Werror \
-		-I/usr/local/include -L/usr/local/lib
+CFLAGS+=	-O2 -pedantic -std=c99 -Wall -Werror
 
-all: cxd cxc
+all: build
+build: cxd cxc
 
 CXS= cxs.c
 cxd: LDFLAGS+= -lm -lsqlite3
