@@ -4,7 +4,7 @@ function chpwd() {
 }
 
 function cx() {
-	local output="`cxc -- \"$1\"`"
+	local output="`cxc \"$1\"`"
 	if test -d "${output}"; then
 		cd "${output}"
 	fi

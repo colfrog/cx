@@ -1,2 +1,2 @@
 alias cd 'cd \!*; cxc -p "$PWD"'
-alias cx 'chdir "`cxc -- \!*`"'
+alias cx 'chdir "`cxc \!*`"'

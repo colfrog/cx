@@ -3,7 +3,7 @@ function __notify_cxd --on-variable PWD
 end
 
 function cx
-	set -l output (cxc -- "$argv")
+	set -l output (cxc "$argv")
 	if test -d "$output"
 		cd "$output"
 	end
