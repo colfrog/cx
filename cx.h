@@ -6,6 +6,5 @@
 // #define CX_DATA_DIR "~/.local/share"
 #endif
 
-#define DEFAULT_SOCKET_NAME "socket"
 #define DEFAULT_DATAFILE_NAME "data"
 #define DEFAULT_LOCKFILE_NAME "lock"
