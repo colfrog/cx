@@ -213,7 +213,10 @@ main(int argc, char **argv)
 	}
 
 	if (pflag) {
-		return push_path(pushpath);
+		if (fork()) // Fork to avoid waiting
+			return 0;
+		else
+			return push_path(pushpath);
 	}
 
 	if (id == -1) {
@@ -229,7 +232,7 @@ main(int argc, char **argv)
 			if (Iflag) {
 				printf("%s: %d\n", match, id);
 			} else {
-				printf("%s\n", match);
+				puts(match);
 			}
 		}
 	}
