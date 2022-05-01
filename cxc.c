@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
 
 #include "cx.h"
@@ -212,12 +213,8 @@ main(int argc, char **argv)
 		return 0;
 	}
 
-	if (pflag) {
-		if (fork()) // Fork to avoid waiting
-			return 0;
-		else
-			return push_path(pushpath);
-	}
+	if (pflag)
+	        return push_path(pushpath);
 
 	if (id == -1) {
 		get_match(argv[argc - 1], match, sizeof(match));
@@ -371,9 +368,6 @@ static int
 push_path(char *path)
 {
 	sqlite3_stmt *stmt;
-	unsigned i, j;
-	char name[256];
-	memset(name, 0, sizeof(name));
 
 	if (access(path, X_OK) != 0)
 		return 1;
@@ -385,16 +379,9 @@ push_path(char *path)
 		sqlite3_bind_int(stmt, 1, id);
 	} else {
 		/* the entry doesn't exist, parse the name from the path and add to db */
-		j = 0;
-		for (i = 0; path[i] != '\0' && j < sizeof(name) - 1; i++) {
-			if (path[i] == '/')
-				j = 0;
-			else
-				name[j++] = path[i];
-		}
-		name[j] = '\0';
+		char *name = rindex(path, '/') + 1;
 
-		/* now that we've got the name, insert the new entry to sqlite */
+		/* insert the new entry to sqlite */
 		stmt = cdbq[DB_INSERT];
 		sqlite3_bind_text(stmt, 1, path, strlen(path), SQLITE_STATIC);
 		sqlite3_bind_text(stmt, 2, name, strlen(name), SQLITE_STATIC);
